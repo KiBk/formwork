@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,"><meta name="theme-color" content="#f7f7f2"><title>Corner kitchen · Formwork</title>
+<link rel="stylesheet" href="./assets/viewer.css">
+</head><body>
+<header class="mast"><div class="brand"><span class="brandmark" data-icon="brand"></span>Formwork</div><i class="vline"></i><span class="brand-sub">Model viewer</span>
+<div class="mast-actions"><button id="ref" class="btn"><i data-icon="book"></i><span>References</span></button></div></header>
+<main><div class="title-row"><div><h1>Corner kitchen</h1><p>Sink base with a right-angle bottle pull-out</p></div><span class="units-note"><i data-icon="ruler"></i> Dimensions in millimetres</span></div>
+<div class="workspace"><div class="model-column"><section class="stage-card" aria-label="Interactive cabinet"><div class="stage" id="stage">
+<div id="render" tabindex="0" aria-label="3D cabinet. Drag to orbit, scroll or pinch to zoom, or select a part. Arrow keys rotate."></div><div id="dims" aria-hidden="true"></div>
+<div class="views" aria-label="Camera view"><button data-view="3D" class="active"><i data-icon="cube"></i>3D</button><button data-view="Plan">Plan</button><button data-view="Front">Front</button></div>
+<button class="square expand" id="expand" title="Expand model view" aria-label="Expand model view"><i data-icon="expand"></i></button>
+<div id="selected-part" hidden></div><div class="stage-footer"><canvas id="axis" width="88" height="80" aria-label="Axis directions"></canvas><div class="zoom"><button id="minus" aria-label="Zoom out" title="Zoom out"><i data-icon="minus"></i></button><button id="fit" title="Fit model to view" aria-label="Fit model to view"><i data-icon="fit"></i></button><button id="plus" aria-label="Zoom in" title="Zoom in"><i data-icon="plus"></i></button></div></div></div>
+<div class="hint"><span><i data-icon="orbit"></i>Drag to orbit</span><span><i data-icon="zoom"></i><span class="mouse">Scroll to zoom</span><span class="touch">Pinch to zoom</span></span><span><i data-icon="pointer"></i>Select a panel to inspect</span></div></section>
+<section class="view-controls" aria-label="Viewing controls"><div class="control-block"><h3>Assembly view</h3><div class="seg" id="assembly"><button data-mode="assembled" class="active"><i data-icon="cube"></i>Assembled</button><button data-mode="exploded"><i data-icon="layers"></i>Exploded</button></div></div><div class="control-block measure"><h3>Dimensions</h3><label class="toggle"><input id="measure" type="checkbox" checked><span></span>Show labels</label></div><div class="control-block sizes"><h3>Worktop thickness</h3><span class="dimension-stat">38 <em>mm</em></span></div></section>
+</div>
+<aside class="inspector"><div class="inspector-head"><div class="heading-icon"><i data-icon="sliders"></i></div><h2>Part inspector</h2><span class="units">mm</span></div><div class="tabs"><button id="parts-tab" class="active">Parts <small>15</small></button><button id="assembly-tab">Model notes</button></div><div class="inspector-body" id="inspector"></div></aside></div></main>
+<dialog id="reference-dialog" aria-labelledby="ref-title"><div class="dialog-head"><div><h2 id="ref-title">Design references</h2><p>Original drawings and photos</p></div><button class="square" id="close-ref" aria-label="Close references"><i data-icon="close"></i></button></div><div class="ref-content"><div id="ref-nav"></div><figure><img alt="" id="ref-image"><figcaption id="ref-caption"></figcaption></figure></div></dialog>
+<div class="sr" aria-live="polite" id="notice"></div>
+
+<script type="application/json" id="reference-data">
+[
+  {
+    "label": "Finished model",
+    "caption": "The designer’s CAD view shows the double doors, the projecting bottle pull-out and the full-height left end panel.",
+    "src": "./references/finished-model.jpg"
+  },
+  {
+    "label": "Parts schedule",
+    "caption": "Finished sizes, quantities and position numbers used in the model. The changes to positions 8 and 13 are discussed in Model notes.",
+    "src": "./references/parts-schedule.jpg"
+  },
+  {
+    "label": "Plan photo",
+    "caption": "The diagonal clips the rear-right corner of the main worktop. Its endpoints and the two cabinet offsets have no dimension lines.",
+    "src": "./references/plan-photo.jpg"
+  },
+  {
+    "label": "Assembly",
+    "caption": "Numbered positions correspond to the printed parts schedule.",
+    "src": "./references/assembly.jpg"
+  },
+  {
+    "label": "Exploded drawing",
+    "caption": "The original exploded view shows how the two cabinets and their rails are arranged.",
+    "src": "./references/exploded-drawing.jpg"
+  },
+  {
+    "label": "Sink upright",
+    "caption": "One 704 × 500 × 16 mm upright with the designer’s drilling callouts.",
+    "src": "./references/sink-upright.jpg"
+  },
+  {
+    "label": "Pull-out sides",
+    "caption": "Two 704 × 500 × 16 mm bottle pull-out sides.",
+    "src": "./references/pull-out-sides.jpg"
+  },
+  {
+    "label": "Sink base bottom",
+    "caption": "One 900 × 500 × 16 mm bottom panel.",
+    "src": "./references/sink-base-bottom.jpg"
+  },
+  {
+    "label": "Hardware note",
+    "caption": "The handwritten hardware note mentions hinges and the bottle pull-out. The photos do not identify the exact rack or mounting geometry.",
+    "src": "./references/hardware-note.jpg"
+  }
+]
+</script>
+<script src="./vendor/three.min.js"></script>
+<script src="./assets/viewer.js"></script>
+</body></html>
