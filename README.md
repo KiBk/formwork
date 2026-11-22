@@ -4,6 +4,10 @@ An interactive 3D viewer for a corner kitchen cabinet with a sink base and a per
 
 The viewer includes 18 pieces across 15 schedule entries. **Model notes** identifies the estimated diagonal cut, assembly offsets and uncertain handwritten dimensions. **References** contains the nine original drawing and photo views used to reconstruct the cabinet.
 
+## Share a language-specific link
+
+Choose **EN** or **RU** in the upper-right corner, then use **Copy link** to share the viewer in that language. The root address defaults to English. [Русский](https://kibk.net/formwork/?lang=ru) · [English](https://kibk.net/formwork/?lang=en)
+
 ## Preview locally
 
 Open `index.html` in a browser, or run the following command from the repository root and visit [the local preview](http://127.0.0.1:8000/).
@@ -26,7 +30,8 @@ python3 -m http.server 8000 --bind 127.0.0.1
 
 ## Project files
 
-- `index.html` contains the viewer layout and reference captions.
+- `index.html` contains the viewer layout and reference image paths.
+- `assets/languages.js` contains the English and Russian interface text, reference captions and language-link handling.
 - `assets/viewer.js` defines the cabinet geometry, part dimensions, camera and inspection controls.
 - `assets/viewer.css` styles the desktop and mobile layouts.
 - `references/` contains the photographs and drawings displayed by the viewer.

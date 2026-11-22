@@ -1,7 +1,9 @@
 (() => {
 'use strict';
 const $ = (id) => document.getElementById(id);
+const { text } = formworkLanguage;
 const icons = {
+ link:'<path d="m10 13 4-4m-6 7-1 1a3.5 3.5 0 0 1-5-5l4-4a3.5 3.5 0 0 1 5 0m2 7a3.5 3.5 0 0 0 5 0l4-4a3.5 3.5 0 0 0-5-5l-1 1"/>',
  brand:'<path d="m3 7 9-5 9 5-9 5zM3 7v10l9 5 9-5V7M12 12v10M7.5 9.5v10M16.5 9.5v10"/>',
  cube:'<path d="m3 7 9-5 9 5-9 5zM3 7v10l9 5 9-5V7M12 12v10"/>',
  book:'<path d="M3 4h6a4 4 0 0 1 3 1.5A4 4 0 0 1 15 4h6v15h-6a4 4 0 0 0-3 1.5 4 4 0 0 0-3-1.5H3zM12 6v14"/>',
@@ -19,25 +21,25 @@ function icon(name){return '<svg viewBox="0 0 24 24" fill="none" stroke="current
 document.querySelectorAll('[data-icon]').forEach(el=>el.innerHTML=icon(el.dataset.icon));
 const T=THREE, v=(x,y,z)=>new T.Vector3(x,y,z);
 const sections=[
- ['Worktops',[1,2]],['Cabinet panels',[3,4,5,6,7,8,17]],['Fronts',[9,10,11]],['Rails',[13,14,16]]
+ ['worktops',[1,2]],['panels',[3,4,5,6,7,8,17]],['fronts',[9,10,11]],['rails',[13,14,16]]
 ];
 // Finished dimensions follow the order printed in the Russian panel schedule.
 const parts={
- 1:['Main worktop',[1170,570,38],1,'The schedule gives the rectangular blank. The rear-right diagonal is reconstructed from the plan photo.'],
- 2:['Return worktop',[580,200,38],1,'The narrow worktop meets the front edge of the main worktop on the right.'],
- 3:['Outer end panel',[820,570,16],1,'Full-height decorative panel at the left end.'],
- 4:['Sink base bottom',[900,500,16],1,'Shown with four face bores on the separate bottom-panel drawing.'],
- 5:['Pull-out side',[704,500,16],2,'Two side panels run along the depth of the bottle rack. The long exposed face belongs to one of these sides.'],
- 6:['Left sink upright',[704,500,16],1,'Sink cabinet side, position 6 on the assembly drawing.'],
- 7:['Right sink upright',[704,500,16],1,'Sink cabinet side, position 7 on the assembly drawing.'],
- 8:['Blind front panel',[720,330,16],1,'Interpreted as the fixed front of the sink cabinet from the handwritten correction.'],
- 9:['Sink door A',[714,281,16],1,'One of two equal sink cabinet fronts.'],
- 10:['Sink door B',[714,281,16],1,'One of two equal sink cabinet fronts.'],
- 11:['Bottle pull-out front',[714,192,16],1,'The narrow front faces left, toward the sink doors.'],
- 13:['Sink base cross rail',[100,868,16],1,'The overwritten dimension is read provisionally as 868 mm, the clear span between two 16 mm sides.'],
- 14:['Sink top rail',[868,70,16],2,'Two top rails span the sink cabinet between its uprights.'],
- 16:['Pull-out top rail',[70,168,16],2,'Two rails span the pull-out cabinet between its uprights.'],
- 17:['Pull-out bottom',[500,200,16],1,'The 500 mm side runs perpendicular to the depth of the sink base.']
+ 1: {size: [1170,570,38], quantity: 1},
+ 2: {size: [580,200,38], quantity: 1},
+ 3: {size: [820,570,16], quantity: 1},
+ 4: {size: [900,500,16], quantity: 1},
+ 5: {size: [704,500,16], quantity: 2},
+ 6: {size: [704,500,16], quantity: 1},
+ 7: {size: [704,500,16], quantity: 1},
+ 8: {size: [720,330,16], quantity: 1},
+ 9: {size: [714,281,16], quantity: 1},
+ 10: {size: [714,281,16], quantity: 1},
+ 11: {size: [714,192,16], quantity: 1},
+ 13: {size: [100,868,16], quantity: 1},
+ 14: {size: [868,70,16], quantity: 2},
+ 16: {size: [70,168,16], quantity: 2},
+ 17: {size: [500,200,16], quantity: 1}
 };
 const viewer=$('render'), stage=$('stage'), panel=$('inspector');
 const scene=new T.Scene(), assembly=new T.Group(), guides=new T.Group();
@@ -141,62 +143,83 @@ function foot(x,z,dx,dz){
 for(const x of [82,850])for(const z of [116,486])foot(x,z,-40,-28);
 for(const x of [680,1060])for(const z of [610,729])foot(x,z,160,100);
 const labels=[];
-function dimension(a,b,offset,label,views,anchor=.5){
+function dimension(a,b,offset,views,anchor=.5){
+ const length=Math.round(a.distanceTo(b));
  const begin=a.clone().add(offset),end=b.clone().add(offset),tick=offset.clone().normalize().multiplyScalar(9);
  const geom=new T.BufferGeometry().setFromPoints([a,begin.clone().add(tick),b,end.clone().add(tick),begin,end,
   begin.clone().sub(tick),begin.clone().add(tick),end.clone().sub(tick),end.clone().add(tick)]);
  const line=new T.LineSegments(geom,new T.LineBasicMaterial({color:0x617457,transparent:true,opacity:.8,depthTest:false}));
- line.renderOrder=5;guides.add(line);const el=document.createElement('span');el.className='dim-label';el.textContent=label;$('dims').appendChild(el);
- labels.push({line,el,point:begin.clone().lerp(end,anchor),views});
+ line.renderOrder=5;guides.add(line);const el=document.createElement('span');el.className='dim-label';$('dims').appendChild(el);
+ labels.push({line,el,length,point:begin.clone().lerp(end,anchor),views});
 }
-dimension(v(0,0,770),v(1170,0,770),v(0,0,80),'1,170 mm',['3D','Plan'],.52);
-dimension(v(0,0,570),v(0,820,570),v(-90,0,0),'820 mm',['3D','Front'],.55);
-dimension(v(0,0,0),v(0,0,570),v(-76,0,0),'570 mm',['Plan']);
-dimension(v(1170,0,570),v(1170,0,770),v(80,0,0),'200 mm',['Plan']);
-dimension(v(0,858,0),v(1170,858,0),v(0,70,0),'1,170 mm',['Front']);
+dimension(v(0,0,770),v(1170,0,770),v(0,0,80),['3D','Plan'],.52);
+dimension(v(0,0,570),v(0,820,570),v(-90,0,0),['3D','Front'],.55);
+dimension(v(0,0,0),v(0,0,570),v(-76,0,0),['Plan']);
+dimension(v(1170,0,570),v(1170,0,770),v(80,0,0),['Plan']);
+dimension(v(0,858,0),v(1170,858,0),v(0,70,0),['Front']);
 let selected=null,tab='parts',mode='assembled',view='3D',zoom=1,yaw=-.55,pitch=.42,expanded=false;
 let width=600,height=450,frame=0,target=v(575,420,350);
 const ray=new T.Raycaster(),projected=v(0,0,0);
-const notes=[
- ['From the parts schedule','The 15 numbered positions account for 18 pieces. The carcass and fronts use 16 mm laminated chipboard. Both worktop pieces are listed at 38 mm thick.'],
- ['Angled worktop','The main blank measures 1,170 × 570 mm. The plan photo shows the diagonal but gives no endpoints. The model removes a triangle extending approximately 450 mm along the back and 500 mm along the right edge. In plan view, part of the square carcass extends past this cut, as in the reference photo. Its fit against the kitchen needs site dimensions.'],
- ['Placement and height','The 580 × 200 mm return meets the main worktop at the front right. The assembled model places the 820 mm end panel on the floor, with a 100 mm leg space and an overall height of 858 mm. Door gaps, leg centres, rail elevation and cabinet offsets are inferred.'],
- ['Handwritten revisions','Position 8 is interpreted as a 720 × 330 mm blind front. Position 13 has an overwritten width, read here as 868 mm. A loose note below the schedule appears to say 714 × 30 mm and has no identified position.'],
- ['Hardware and finishes','The feet are schematic. The handwritten note mentions hinges and a bottle rack. The internal rack, hinges, drilling and sink opening have insufficient geometry to model. The finish colours follow the CAD photo approximately.']
-];
-function renderPanel(){
+const notes = ["schedule", "diagonal", "placement", "revisions", "hardware"];
+function partSize(id) {
+ return parts[id].size.join(' × ') + ' ' + text('mm');
+}
+function renderPanel() {
  $('assembly-tab').classList.toggle('active',tab==='notes');$('parts-tab').classList.toggle('active',tab==='parts');
  $('assembly-tab').setAttribute('aria-pressed',String(tab==='notes'));$('parts-tab').setAttribute('aria-pressed',String(tab==='parts'));
- if(tab==='notes'){panel.innerHTML=notes.map(([name,body])=>'<section class="note-set"><h3>'+name+'</h3><p>'+body+'</p></section>').join('');return;}
- let html='';
- if(selected){const [name,size,,description]=parts[selected];html='<div class="panel-readout"><button data-clear aria-label="Clear selected part">'+icon('close')+'</button><b>'+name+'</b><div class="part-dims">'+size.join(' × ')+' mm</div><p>'+description+'</p></div>';}
- for(const [group,ids] of sections){
-  html+='<div class="part-section-head">'+group+'</div>';
-  for(const id of ids){const [name,size,n]=parts[id];html+='<button class="part-button'+(selected===id?' chosen':'')+'" data-part="'+id+'" aria-pressed="'+(selected===id)+'"><span class="part-id">'+String(id).padStart(2,'0')+'</span><span><strong>'+name+'</strong><small>'+size.join(' × ')+' mm</small></span><span class="qty">×'+n+'</span></button>';}
+ if (tab === 'notes') {
+  panel.innerHTML = notes.map(key => `<section class="note-set"><h3>${text(key+'Heading')}</h3><p>${text(key+'Note')}</p></section>`).join('');
+  return;
  }
- panel.innerHTML=html;
+ let html = '';
+ if (selected) {
+  html = `<div class="panel-readout"><button data-clear aria-label="${text('clearPart')}">${icon('close')}</button><b>${text('part'+selected)}</b><div class="part-dims">${partSize(selected)}</div><p>${text('part'+selected+'Desc')}</p></div>`;
+ }
+ for (const [group,ids] of sections) {
+  html += `<div class="part-section-head">${text(group)}</div>`;
+  for (const id of ids) {
+   html += `<button class="part-button${selected===id?' chosen':''}" data-part="${id}" aria-pressed="${selected===id}"><span class="part-id">${String(id).padStart(2,'0')}</span><span><strong>${text('part'+id)}</strong><small>${partSize(id)}</small></span><span class="qty">×${parts[id].quantity}</span></button>`;
+  }
+ }
+ panel.innerHTML = html;
+}
+function renderSelection() {
+ const badge = $('selected-part');
+ badge.hidden = !selected;
+ badge.textContent = selected ? text('part'+selected) + ' · ' + partSize(selected) : '';
 }
 const highlight=new T.LineBasicMaterial({color:0x507231,transparent:true,opacity:.94,depthTest:false});
 const selection=new T.Group();scene.add(selection);
 function select(id,resetScroll=true){
  selected=id||null;tab='parts';selection.clear();renderPanel();
- const badge=$('selected-part');badge.hidden=!selected;
- if(selected)badge.textContent=parts[selected][0]+' · '+parts[selected][1].join(' × ')+' mm';
+ renderSelection();
  for(const mesh of meshes){if(selected && mesh.userData.id===selected){
   const outline=new T.LineSegments(mesh.children[0].geometry,highlight);outline.position.copy(mesh.position);outline.renderOrder=7;outline.userData.host=mesh;selection.add(outline);
  }}
  if(resetScroll) panel.scrollTop=0;
- $('notice').textContent=selected?parts[id][0]+', '+parts[id][1].join(' by ')+' millimetres.':'Selection cleared.';
+ $('notice').textContent=selected ? text('part'+id)+', '+parts[id].size.join(text('by'))+' '+text('millimetres')+'.' : text('cleared');
  queueDraw();
 }
 panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.hasAttribute('data-part'))select(Number(b.dataset.part));else if(b.hasAttribute('data-clear'))select(null);});
 $('parts-tab').onclick=()=>{tab='parts';renderPanel();};$('assembly-tab').onclick=()=>{tab='notes';renderPanel();panel.scrollTop=0;};
 const refs=JSON.parse($('reference-data').textContent);
-function reference(i){
- const r=refs[i];$('ref-image').src=r.src;$('ref-image').alt=r.label;$('ref-caption').textContent=r.caption;
- document.querySelectorAll('#ref-nav button').forEach((b,j)=>{b.classList.toggle('active',i===j);b.setAttribute('aria-pressed',String(i===j));});
+let currentReference = 0;
+function reference(i) {
+ currentReference = i;
+ const r = refs[i];
+ $('ref-image').src = r.src;
+ $('ref-image').alt = text(r.key+'Label');
+ $('ref-caption').textContent = text(r.key+'Caption');
+ document.querySelectorAll('#ref-nav button').forEach((button,j) => {
+  button.classList.toggle('active',i===j);
+  button.setAttribute('aria-pressed',String(i===j));
+ });
 }
-refs.forEach((r,i)=>{const b=document.createElement('button');b.textContent=r.label;b.onclick=()=>reference(i);$('ref-nav').appendChild(b);});
+refs.forEach((r,i) => {
+ const button = document.createElement('button');
+ button.onclick = () => reference(i);
+ $('ref-nav').appendChild(button);
+});
 $('ref').onclick=()=>{reference(0);$('reference-dialog').showModal();};$('close-ref').onclick=()=>$('reference-dialog').close();
 $('reference-dialog').addEventListener('click',e=>{if(e.target===e.currentTarget){const a=e.currentTarget.getBoundingClientRect();if(e.clientX<a.left||e.clientX>a.right||e.clientY<a.top||e.clientY>a.bottom)e.currentTarget.close();}});
 function setupCamera(){
@@ -331,13 +354,27 @@ document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.data
 function setMode(next){mode=next;for(const mesh of meshes)mesh.position.copy(mesh.userData.origin).addScaledVector(mesh.userData.delta,mode==='exploded'?1:0);
  for(const edge of selection.children)edge.position.copy(edge.userData.host.position);
  document.querySelectorAll('[data-mode]').forEach(b=>{b.classList.toggle('active',b.dataset.mode===mode);b.setAttribute('aria-pressed',String(b.dataset.mode===mode));});
- $('measure').disabled=mode==='exploded';document.querySelector('.measure').title=mode==='exploded'?'Assembly dimensions are shown in the assembled view.':'';zoom=1;queueDraw();
+ $('measure').disabled=mode==='exploded';renderModeHint();zoom=1;queueDraw();
 }
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
 function zoomBy(f){zoom=Math.max(.5,Math.min(3,zoom*f));queueDraw();}
 $('minus').onclick=()=>zoomBy(1/1.18);$('plus').onclick=()=>zoomBy(1.18);$('fit').onclick=()=>{zoom=1;queueDraw();};
 $('measure').onchange=queueDraw;
-function full(value){expanded=value;document.querySelector('.stage-card').classList.toggle('full',value);$('expand').setAttribute('aria-label',value?'Exit expanded view':'Expand model view');$('expand').setAttribute('aria-pressed',String(value));$('expand').title=value?'Exit expanded view':'Expand model view';resize();}
+function renderModeHint() {
+ document.querySelector('.measure').title = mode === 'exploded' ? text('assembledHint') : '';
+}
+function renderExpandButton() {
+ const button = $('expand');
+ button.title = text(expanded ? 'exitExpanded' : 'expand');
+ button.setAttribute('aria-label', button.title);
+ button.setAttribute('aria-pressed', String(expanded));
+}
+function full(value) {
+ expanded=value;
+ document.querySelector('.stage-card').classList.toggle('full',value);
+ renderExpandButton();
+ resize();
+}
 $('expand').onclick=()=>full(!expanded);document.addEventListener('keydown',e=>{if(e.key==='Escape'&&expanded)full(false);});
 function orbit(dx,dy){yaw-=dx;pitch=Math.max(-1.42,Math.min(1.55,pitch+dy));setView('3D',false);}
 function pick(x,y){
@@ -363,5 +400,21 @@ function endPointer(e){if(!touch.has(e.pointerId))return;touch.delete(e.pointerI
 viewer.addEventListener('pointerup',endPointer);viewer.addEventListener('pointercancel',endPointer);
 viewer.addEventListener('wheel',e=>{e.preventDefault();const delta=e.deltaY*(e.deltaMode===1?16:1);zoomBy(Math.exp(-delta*.0018));},{passive:false});
 viewer.addEventListener('keydown',e=>{const map={ArrowLeft:[-.12,0],ArrowRight:[.12,0],ArrowUp:[0,.09],ArrowDown:[0,-.09]};if(map[e.key]){e.preventDefault();orbit(...map[e.key]);}if(e.key==='+'||e.key==='=')zoomBy(1.15);if(e.key==='-')zoomBy(1/1.15);});
-renderPanel();setView('3D');setMode('assembled');resize();new ResizeObserver(resize).observe(stage);
+function renderLanguage() {
+ renderPanel();
+ renderSelection();
+ renderModeHint();
+ renderExpandButton();
+ $('notice').textContent = '';
+ const number = new Intl.NumberFormat(document.documentElement.lang);
+ for (const label of labels) {
+  label.el.textContent = number.format(label.length) + ' ' + text('mm');
+ }
+ document.querySelectorAll('#ref-nav button').forEach((button,i) => {
+  button.textContent = text(refs[i].key+'Label');
+ });
+ if ($('reference-dialog').open) reference(currentReference);
+}
+window.addEventListener('formwork-languagechange', renderLanguage);
+renderLanguage();setView('3D');setMode('assembled');resize();new ResizeObserver(resize).observe(stage);
 })();
